@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    tools:context=".ui.NuberFactFragment">
+    tools:context=".ui.NumberFactFragment">
 
     <TextView
         android:id="@+id/fragment_number_fact_number_text_view"
