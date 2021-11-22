@@ -12,11 +12,12 @@ import com.artushock.interestingfactsaboutnumbers.room.LocalRepositoryImpl
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.text.FieldPosition
 
 class NumbersViewModel(
     private val dataToObserve: MutableLiveData<NumberFactData> = MutableLiveData(),
     private val retrofitImpl: RetrofitImpl = RetrofitImpl(),
-    private val localRepository: LocalRepository = LocalRepositoryImpl(getHistoryDao())
+    private val localRepository: LocalRepository = LocalRepositoryImpl(getHistoryDao()),
 ) : ViewModel() {
 
     fun getSpecificNumberFact(number: String): MutableLiveData<NumberFactData> {
@@ -29,9 +30,12 @@ class NumbersViewModel(
         return dataToObserve
     }
 
-    fun saveRequestToDb(item: NumberRequestItem){
+    fun saveRequestToDb(item: NumberRequestItem) {
         localRepository.saveEntity(item)
     }
+
+    fun getAllItemsFromDb(): List<NumberRequestItem> = localRepository.getAllHistory()
+
 
     private fun sendRequest(number: String?) {
         dataToObserve.value = NumberFactData.Loading
@@ -56,7 +60,6 @@ class NumbersViewModel(
             }
 
             override fun onFailure(call: Call<String>, t: Throwable) {
-                Log.d("123123123", "onFailure")
                 dataToObserve.postValue(NumberFactData.Error(t))
             }
         })

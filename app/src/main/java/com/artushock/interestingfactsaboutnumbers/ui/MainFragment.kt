@@ -7,10 +7,12 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.artushock.interestingfactsaboutnumbers.R
 import com.artushock.interestingfactsaboutnumbers.databinding.FragmentMainBinding
 import com.artushock.interestingfactsaboutnumbers.model.NumberFactData
 import com.artushock.interestingfactsaboutnumbers.model.NumberRequestItem
+import com.artushock.interestingfactsaboutnumbers.ui.adapter.RequestHistoryAdapter
 import com.artushock.interestingfactsaboutnumbers.viewmodel.NumbersViewModel
 
 class MainFragment : Fragment() {
@@ -33,6 +35,23 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initButtons()
+        initRecyclerView()
+    }
+
+    private fun initRecyclerView() {
+        val mAdapter = RequestHistoryAdapter(viewModel.getAllItemsFromDb())
+        mAdapter.setOnItemClickListener(object : RequestHistoryAdapter.OnItemClickListener{
+            override fun onItemClick(item: NumberRequestItem) {
+                showNumberFactFragment(item.number, item.fact)
+            }
+
+        })
+
+        with(binding.mainFragmentRecyclerView){
+            layoutManager = LinearLayoutManager(context)
+            setHasFixedSize(true)
+            adapter = mAdapter
+        }
     }
 
     private fun initButtons() {
@@ -61,17 +80,16 @@ class MainFragment : Fragment() {
                 handleError(data.error)
             }
             is NumberFactData.Success -> {
-                showNumberFactFragment(data.serverResponseData)
+                val message = data.serverResponseData
+                val number = message.split(" ")[0]
+                viewModel.saveRequestToDb(NumberRequestItem(number, message))
+                showNumberFactFragment(number, message)
             }
         }
     }
 
-    private fun showNumberFactFragment(message: String) {
+    private fun showNumberFactFragment(number: String, message: String) {
         binding.mainFragmentProgressBar.visibility = View.GONE
-
-        val number = message.split(" ")[0]
-
-        viewModel.saveRequestToDb(NumberRequestItem(number, message))
         val fragment = NumberFactFragment.newInstance(number, message)
         parentFragmentManager.beginTransaction()
             .replace(R.id.main_activity_fragment_container, fragment)
