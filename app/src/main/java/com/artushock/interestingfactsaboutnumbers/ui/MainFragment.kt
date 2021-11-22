@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.artushock.interestingfactsaboutnumbers.R
 import com.artushock.interestingfactsaboutnumbers.databinding.FragmentMainBinding
 import com.artushock.interestingfactsaboutnumbers.model.NumberFactData
+import com.artushock.interestingfactsaboutnumbers.model.NumberRequestItem
 import com.artushock.interestingfactsaboutnumbers.viewmodel.NumbersViewModel
 
 class MainFragment : Fragment() {
@@ -69,6 +70,8 @@ class MainFragment : Fragment() {
         binding.mainFragmentProgressBar.visibility = View.GONE
 
         val number = message.split(" ")[0]
+
+        viewModel.saveRequestToDb(NumberRequestItem(number, message))
         val fragment = NumberFactFragment.newInstance(number, message)
         parentFragmentManager.beginTransaction()
             .replace(R.id.main_activity_fragment_container, fragment)

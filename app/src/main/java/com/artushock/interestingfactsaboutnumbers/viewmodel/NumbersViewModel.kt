@@ -4,7 +4,11 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.artushock.interestingfactsaboutnumbers.api.RetrofitImpl
+import com.artushock.interestingfactsaboutnumbers.app.App.Companion.getHistoryDao
 import com.artushock.interestingfactsaboutnumbers.model.NumberFactData
+import com.artushock.interestingfactsaboutnumbers.model.NumberRequestItem
+import com.artushock.interestingfactsaboutnumbers.room.LocalRepository
+import com.artushock.interestingfactsaboutnumbers.room.LocalRepositoryImpl
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -12,6 +16,7 @@ import retrofit2.Response
 class NumbersViewModel(
     private val dataToObserve: MutableLiveData<NumberFactData> = MutableLiveData(),
     private val retrofitImpl: RetrofitImpl = RetrofitImpl(),
+    private val localRepository: LocalRepository = LocalRepositoryImpl(getHistoryDao())
 ) : ViewModel() {
 
     fun getSpecificNumberFact(number: String): MutableLiveData<NumberFactData> {
@@ -22,6 +27,10 @@ class NumbersViewModel(
     fun getRandomNumberFact(): MutableLiveData<NumberFactData> {
         sendRequest(null)
         return dataToObserve
+    }
+
+    fun saveRequestToDb(item: NumberRequestItem){
+        localRepository.saveEntity(item)
     }
 
     private fun sendRequest(number: String?) {
